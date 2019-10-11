@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from 'vue' // 导入vue
+import VueRouter from 'vue-router' // 导入路由
 
 Vue.use(VueRouter)
 
