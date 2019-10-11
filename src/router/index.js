@@ -7,9 +7,10 @@ Vue.use(VueRouter)
 const router = new VueRouter({
   // 配置路由表
   routes: [
+    // 登录页面路由
     {
       name: 'login',
-      path: '/login', // 导航
+      path: '/login', // 路径（导航）
       component: Login // 登录组件
     }
   ]
