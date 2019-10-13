@@ -17,7 +17,9 @@
 </template>
 
 <script>
-import resquest from '@/utils/request' // 导入封装好的axios请求函数（request）
+// import resquest from '@/utils/request' // 导入封装好的axios请求函数（request）
+import { login } from '@/api/user' // 引入封装的登录请求模块函数
+
 export default {
   //   name: 'LoginIndex'
   data: function () {
@@ -31,18 +33,44 @@ export default {
   methods: {
     //   请求提交登录表单数据 发送请求调用接口 已经封装好了axios直接引入
     async getLogin () {
+      //   表单验证
+      // 验证通过，loading加载 请求
+      const toast = this.$toast.loading({
+        duration: 0, // 持续展示 toast
+        forbidClick: true, // 禁用背景点击
+        loadingType: 'spinner',
+        message: '登录中'
+      })
+
       try {
-        var res = await resquest({
-          method: 'POST',
-          url: '/app/v1_0/authorizations',
-          data: this.user
-        })
+        //   请求提交表单数据
+        const { data } = await login(this.user)
+
+        // 请求提交表单数据
+        // const { data } = await request({
+        //   method: 'POST',
+        //   url: '/app/v1_0/authorizations',
+        //   data: this.user
+        // })
+        console.log(data)
+        //   结束loading 提示 先清除loading
+        toast.clear()
+
+        // 再提示登录成功
+        // this.$toast.success({
+        //   duration: 2000,
+        //   message: '登录成功'
+        // })
         this.$toast.success('登录成功')
       } catch (err) {
+        //   结束loading 提示
+        toast.clear()
         if (err.response && err.response.status === 400) {
           this.$toast.fail('登录失败手机号或验证码输入有误')
         }
       }
+    //   结束loading 提示
+    //   toast.clear()
     }
   }
 }
