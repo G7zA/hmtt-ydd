@@ -3,12 +3,37 @@
     <!-- 导航栏 -->
     <van-nav-bar title="标题" />
     <!-- 登录表单 -->
-    <van-cell-group>
-      <van-field v-model="user.mobile"  clearable label="手机号" placeholder="请输入手机号"/>
-
-      <van-field v-model="user.code" clearable type="password" label="验证码" placeholder="请输入验证码"/>
-    </van-cell-group>
-    <!-- 登录表单 -->
+    <ValidationObserver ref="loginForm">
+      <van-cell-group>
+        <!--
+      name 提示的文本
+      rules 验证规则
+        required 必填项
+      v-slot="{ errors }" 获取校验结果数据
+        errors[0] 读取校验结果的失败信息
+        -->
+        <ValidationProvider name="手机号" rules="required|phone" v-slot="{ errors }">
+          <van-field
+            v-model="user.mobile"
+            clearable
+            label="手机号"
+            placeholder="请输入手机号"
+            :error-message="errors[0]"
+          />
+        </ValidationProvider>
+        <ValidationProvider name="验证码" rules="required|max:6" v-slot="{ errors }">
+          <van-field
+            v-model="user.code"
+            clearable
+            type="password"
+            label="验证码"
+            placeholder="请输入验证码"
+            :error-message="errors[0]"
+          />
+        </ValidationProvider>
+      </van-cell-group>
+      <!-- 登录表单 -->
+    </ValidationObserver>
 
     <!-- 登录按钮 -->
     <!-- 给登录按钮注册点击事件处理函数  -->
@@ -34,6 +59,11 @@ export default {
     //   请求提交登录表单数据 发送请求调用接口 已经封装好了axios直接引入
     async getLogin () {
       //   表单验证
+      const isValid = await this.$refs.loginForm.validate()
+      // 如果验证失败，阻止表单提交
+      if (!isValid) {
+        return
+      }
       // 验证通过，loading加载 请求
       const toast = this.$toast.loading({
         duration: 0, // 持续展示 toast
@@ -43,10 +73,10 @@ export default {
       })
 
       try {
-        //   请求提交表单数据
+        //   请求提交表单数据 已经封装用户接口相关请求模块在user.js中
         const { data } = await login(this.user)
 
-        // 请求提交表单数据
+        // 请求提交表单数据 已经封装用户接口相关请求模块在user.js中
         // const { data } = await request({
         //   method: 'POST',
         //   url: '/app/v1_0/authorizations',
@@ -54,7 +84,9 @@ export default {
         // })
         console.log(data)
         //   结束loading 提示 先清除loading
-        toast.clear()
+        // 如果 loading 后面有seccess、fail 之类的提示 就不需要手动的关闭了
+        // 因为seccess、fail 会自动把 loading 页关掉
+        // toast.clear()
 
         // 再提示登录成功
         // this.$toast.success({
@@ -69,8 +101,8 @@ export default {
           this.$toast.fail('登录失败手机号或验证码输入有误')
         }
       }
-    //   结束loading 提示
-    //   toast.clear()
+      //   结束loading 提示
+      //   toast.clear()
     }
   }
 }
@@ -80,13 +112,13 @@ export default {
 //导航的样式是公共的其他的页也需要使用所以我们把设置登录页头部的样式写到全局（全局生效）在styles下新建一个index.less，然后在main.js中引入
 // 把非公共样式写到页面组件内部，避免和其它组件样式冲突
 .login {
-    .van-cell{
-        padding: 20px;
-    }
-.van-button{
+  .van-cell {
+    padding: 20px;
+  }
+  .van-button {
     width: 100%;
-      background-color: #6db4fb;
-      color: #fff;
-}
+    background-color: #6db4fb;
+    color: #fff;
+  }
 }
 </style>
