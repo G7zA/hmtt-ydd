@@ -85,8 +85,8 @@ export default {
         // })
         // console.log(data)
         //   结束loading 提示 先清除loading
-        // 如果 loading 后面有seccess、fail 之类的提示 就不需要手动的关闭了
-        // 因为seccess、fail 会自动把 loading 页关掉
+        // 如果 loading 后面有success、fail 之类的提示 就不需要手动的关闭了
+        // 因为success、fail 会自动把 loading 页关掉
         // toast.clear()
 
         // 再提示登录成功
@@ -94,11 +94,11 @@ export default {
         //   duration: 2000,
         //   message: '登录成功'
         // })
+        this.$toast.success('登录成功')
         // 第三步 登录成功，将数据存储到容器中 为了防止刷新页面token丢失我们单独封装一个本地存储的存储模块（utils下新建一个storge文件）
         this.$store.commit('setUser', data.data)
         // 第五步 为了防止页面刷新数据丢失，登录成功以后将token存储到本地存储 第六步 然后在容器中使用本地存储中的数据进行初始化token
         setItem('user', data.data)
-        this.$toast.success('登录成功')
       } catch (err) {
         //   结束loading 提示
         toast.clear()
