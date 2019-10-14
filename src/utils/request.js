@@ -1,6 +1,6 @@
 import axios from 'axios' // 导入axios
 import jsonBig from 'json-bigint' // 导入json-bigint 将后端返回数据处理
-import store from '@/store' // 导入存储token的容器
+import store from '@/store' // 导入存储token的容器 非组件模块访问容器直接加载引入就可以了
 // axios.create 方法
 // 建议使用 create 方式，我们可以拥有
 // 说白了就是复制了一个 axios，拥有和 axios 完全一样的功能，但是配置可以不一样
