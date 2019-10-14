@@ -27,8 +27,7 @@ request.interceptors.request.use(function (config) {
   // 定义user对象从容器中先拿到请求成功后的数据user对象
   const user = store.state.user
   // 判断如果token存在
-  console.log(2, user, 1)
-
+  // console.log(2, user, 1)
   if (user) {
     config.headers['Authorization'] = `Bearer ${user.token}` // 统一注入token 到headers属性 因为所有接口要求的token格式是一样的
   }
