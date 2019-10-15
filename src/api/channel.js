@@ -5,6 +5,6 @@ import request from '@/utils/request' // 引入封装好的axios请求模块
 export function defaultChannels () {
   return request({
     method: 'GET',
-    url: '/app/v1_0/channels'
+    url: '/app/v1_0/user/channels'
   })
 }
