@@ -13,8 +13,8 @@
         @load="onload" 上拉加载更多触发的事件
         列表组件<van-cell/> 会在初始化的时候自动调用 load 事件调用 onload方法-->
         <van-pull-refresh v-model="channel.isPullDownLoading" @refresh="onRefresh">
-            <!--v-model="channel.isPullDownLoading" 控制下拉刷新的 loading 状态
-            @refresh 下拉刷新的时候会触发该事件 调用onRefresh方法 -->
+          <!--v-model="channel.isPullDownLoading" 控制下拉刷新的 loading 状态
+          @refresh 下拉刷新的时候会触发该事件 调用onRefresh方法-->
           <van-list
             v-model="channel.loading"
             :finished="channel.finished"
@@ -22,19 +22,47 @@
             @load="onLoad"
           >
             <!-- 列表具体内容
-           -->
+            -->
             <!-- <van-cell
               v-for="article in channel.articles"
               :key="article"
               :title="article"
-            /> -->
+            />-->
             <!--  v-for中key 必须是字符串或者数字，不能是数组或对象，所以需要转换，
-            因为article.art_id超过了安全整数范围被json-bigint转成了对象，但是key只能绑定字符串或者数字，所以这里要把它转为字符串来绑定给这个key -->
-            <van-cell
+            因为article.art_id超过了安全整数范围被json-bigint转成了对象，但是key只能绑定字符串或者数字，所以这里要把它转为字符串来绑定给这个key-->
+            <!-- <van-cell
               v-for="article in channel.articles"
               :key="article.art_id.toString()"
               :title="article.title"
-            />
+            />-->
+            <!-- 展示详细的列表项信息 -->
+            <van-cell
+              v-for="(article, index) in channel.articles"
+              :key="index"
+              :title="article.title"
+            >
+              <div slot="label">
+                <van-grid :border="false" :column-num="3">
+                    <!-- 文章图片信息 -->
+                  <van-grid-item v-for="(img, index) in article.cover.images" :key="index">
+                    <van-image height="80" :src="img" lazy-load/>
+                    <!-- lazy-load 图片懒加载直接在wan-image组件中使用即可，如果是普通img标签表图片的src属性换成指令v-lazy即可 v-lazy="图片地址" -->
+                  </van-grid-item>
+                </van-grid>
+                <div class="article-info">
+                  <div class="meta">
+                      <!-- 文章作者名字 -->
+                    <span>{{ article.aut_name }}</span>
+                    <!-- 文章评论数量 -->
+                    <span>{{ article.comm_count }}评论</span>
+                    <!-- 文章发布日期 -->
+                    <span>{{ article.pubdate }}</span>
+                  </div>
+                  <!-- 右侧的小x号图标 不用也可以 -->
+                  <van-icon name="close" />
+                </div>
+              </div>
+            </van-cell>
             <!-- 列表具体内容 -->
             <!-- channel.articles 该频道的文章列表
           channel.loading 该频道的加载状态
@@ -60,7 +88,7 @@ export default {
       //   loading: false,
       //   finished: false,
       channels: [] // 定义频道列表
-    //   isloading: false
+      //   isloading: false
     }
   },
   created () {
@@ -140,8 +168,8 @@ export default {
         channel.isPullDownLoading = false // 存储频道的下拉刷新 loading 状态
       })
       this.channels = channels // 将服务器中的数据赋值给data中的channels中 然后做循环遍历渲染到页面上，此时频道列表channels数组中的每个频道channel中就会多了一个articles文章列表
-    //   channel.articles 是频道列表 在他的外面是一个当前频道对象就是this.channels[this.active]=activeChannel(当前激活的频道对象)
-    // }
+      //   channel.articles 是频道列表 在他的外面是一个当前频道对象就是this.channels[this.active]=activeChannel(当前激活的频道对象)
+      // }
     },
     // 下拉刷新
     async onRefresh () {
@@ -170,5 +198,15 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+.home {
+  .article-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .meta span {
+      margin-right: 10px;
+    }
+  }
+}
 </style>
