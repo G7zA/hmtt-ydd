@@ -56,7 +56,20 @@
                     <!-- 文章评论数量 -->
                     <span>{{ article.comm_count }}评论</span>
                     <!-- 文章发布日期 -->
-                    <span>{{ article.pubdate }}</span>
+                    <span>{{ article.pubdate | relativeTime }}</span>
+                    <!-- 这里的发布日期的时间我们需要做一下相对事时间处理 用第三方包moment或者day.js都可以
+                    前者功能更强大一些 day.js是参照moment 后者的好处就是比moment小很多 这里我们使用day.js
+                    使用步骤：
+                    1.安装依赖 yarn add dayjs
+                    2.然后在utils中新建一个datetime.js专门处理时间的一个js文件 里面做一些配置
+                    3.导入dayjs
+                    4.导入配置中文语言包
+                    5.dayjs.locale('zh-cn')调用中文语言包
+                    6.使用插件实现相对时间 RelativeTime（插件）插件也是dayjs的插件直接引入就可以使用了不需要下载
+                    7.同样的dayjs.extend(relativeTime) 使用即可 插件的官方文档有说明
+                    8.导出这个js文件即可  在这里需要用到的地方引入加载调用即可
+                    9.第9步 具体的在处理时间的模块中查看datetime.js中有说明
+                    -->
                   </div>
                   <!-- 右侧的小x号图标 不用也可以 -->
                   <van-icon name="close" />

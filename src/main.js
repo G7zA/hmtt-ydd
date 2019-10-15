@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import './utils/datetime' // 引入加载datetime.js 一加载它里面代码就会执行，给vue注册全过滤器处理首页（home）的index.vue组件的模版中文章的发布日期article.pubdate，处理成相对时间
 import { NavBar, Field, Button, Cell, CellGroup, Toast, Tabbar, TabbarItem, Tab, Tabs, List, PullRefresh, Grid, GridItem, Image, Icon, Lazyload } from 'vant' // 导入导航组件、输入框组件、按钮组件
 import './styles/index.less'
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate' // 核心组件
