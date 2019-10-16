@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <!-- 导航栏 -->
-    <van-nav-bar title="首页" />
+    <van-nav-bar title="首页" fixed />
     <!-- 导航栏 -->
     <!-- 频道列表 -->
     <van-tabs v-model="active">
@@ -43,15 +43,15 @@
             >
               <div slot="label">
                 <van-grid :border="false" :column-num="3">
-                    <!-- 文章图片信息 -->
+                  <!-- 文章图片信息 -->
                   <van-grid-item v-for="(img, index) in article.cover.images" :key="index">
-                    <van-image height="80" :src="img" lazy-load/>
+                    <van-image lazy-load height="80" :src="img" />
                     <!-- lazy-load 图片懒加载直接在wan-image组件中使用即可，如果是普通img标签表图片的src属性换成指令v-lazy即可 v-lazy="图片地址" -->
                   </van-grid-item>
                 </van-grid>
                 <div class="article-info">
                   <div class="meta">
-                      <!-- 文章作者名字 -->
+                    <!-- 文章作者名字 -->
                     <span>{{ article.aut_name }}</span>
                     <!-- 文章评论数量 -->
                     <span>{{ article.comm_count }}评论</span>
@@ -220,6 +220,12 @@ export default {
     .meta span {
       margin-right: 10px;
     }
+  }
+  .van-tabs /deep/.van-tabs__wrap {
+    position: fixed;
+    top: 45px;
+    z-index: 2;
+    width: 100%;
   }
 }
 </style>
