@@ -4,7 +4,8 @@
     <van-nav-bar title="首页" fixed />
     <!-- 导航栏 -->
     <!-- 频道列表 -->
-    <van-tabs v-model="active">
+    <!-- animated:切换动画 swipeable：滑动切换 -->
+    <van-tabs v-model="active" animated swipeable>
       <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
         <!-- 文章列表 1.1.2 然后在让文章列表绑定每个频道对应的数据
         loading 控制上拉加载更多的 loading 效果
@@ -86,6 +87,9 @@
       </van-tab>
     </van-tabs>
     <!-- 频道列表 -->
+    <!-- 频道管理 频道弹窗-->
+    <van-popup v-model="isChannleShow" round position="bottom" :style="{ height: '95%' }" />
+    <!-- 频道管理 -->
   </div>
 </template>
 
@@ -100,8 +104,10 @@ export default {
       //   list: [],
       //   loading: false,
       //   finished: false,
-      channels: [] // 定义频道列表
+      channels: [], // 定义频道列表
       //   isloading: false
+      isChannleShow: false // 是否弹出
+
     }
   },
   created () {
@@ -221,11 +227,16 @@ export default {
       margin-right: 10px;
     }
   }
-  .van-tabs /deep/.van-tabs__wrap {
+  .van-tabs /deep/ .van-tabs__wrap--scrollable {
     position: fixed;
-    top: 45px;
+    top: 46px;
+    left: 0;
+    right: 16px;
     z-index: 2;
-    width: 100%;
+  }
+  .van-tabs /deep/ .van-tabs__content {
+    margin-top: 90px;
+    margin-bottom: 50px;
   }
 }
 </style>
