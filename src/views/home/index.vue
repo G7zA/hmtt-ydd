@@ -7,15 +7,15 @@
     <!-- animated:切换动画 swipeable：滑动切换 -->
     <van-tabs v-model="active" animated swipeable>
       <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
-        <!-- 文章列表 1.1.2 然后在让文章列表绑定每个频道对应的数据
+        <van-pull-refresh v-model="channel.isPullDownLoading" @refresh="onRefresh">
+          <!--v-model="channel.isPullDownLoading" 控制下拉刷新的 loading 状态
+          @refresh 下拉刷新的时候会触发该事件 调用onRefresh方法-->
+          <!-- 文章列表 1.1.2 然后在让文章列表绑定每个频道对应的数据
         loading 控制上拉加载更多的 loading 效果
         finished 控制是已加载结束
         finished-text 加载结束的提示文本
         @load="onload" 上拉加载更多触发的事件
-        列表组件<van-cell/> 会在初始化的时候自动调用 load 事件调用 onload方法-->
-        <van-pull-refresh v-model="channel.isPullDownLoading" @refresh="onRefresh">
-          <!--v-model="channel.isPullDownLoading" 控制下拉刷新的 loading 状态
-          @refresh 下拉刷新的时候会触发该事件 调用onRefresh方法-->
+          列表组件<van-cell/> 会在初始化的时候自动调用 load 事件调用 onload方法-->
           <van-list
             v-model="channel.loading"
             :finished="channel.finished"
@@ -88,7 +88,24 @@
     </van-tabs>
     <!-- 频道列表 -->
     <!-- 频道管理 频道弹窗-->
-    <van-popup v-model="isChannleShow" round position="bottom" :style="{ height: '95%' }" />
+    <!-- closeable:属性关闭弹层 会在右上角显示一个关闭的图标 -->
+    <!-- close-icon-position="top-left": 在左上角关闭弹层 -->
+    <!-- 因为要填充内容把单标签设置成双标签 -->
+    <van-popup v-model="isChannleShow" round closeable position="bottom" :style="{ height: '95%' }">
+      <div class="channel-container">
+        <van-cell title="我的频道">
+          <van-button type="danger" size="mini">编辑</van-button>
+        </van-cell>
+        <van-grid :gutter="10">
+          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+        </van-grid>
+        <van-cell title="推荐频道">
+        </van-cell>
+        <van-grid :gutter="10">
+          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+        </van-grid>
+      </div>
+    </van-popup>
     <!-- 频道管理 -->
   </div>
 </template>
@@ -106,8 +123,8 @@ export default {
       //   finished: false,
       channels: [], // 定义频道列表
       //   isloading: false
-      isChannleShow: false // 是否弹出
-
+      //   isChannleShow: false // 是否弹出
+      isChannleShow: true // 是否弹出
     }
   },
   created () {
@@ -237,6 +254,10 @@ export default {
   .van-tabs /deep/ .van-tabs__content {
     margin-top: 90px;
     margin-bottom: 50px;
+  }
+  //   让van-cell单元格距图标有一些距离
+  .channel-container {
+    padding-top: 30px;
   }
 }
 </style>
