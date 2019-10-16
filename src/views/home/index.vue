@@ -93,13 +93,16 @@
     <!-- 因为要填充内容把单标签设置成双标签 -->
     <van-popup v-model="isChannleShow" round closeable position="bottom" :style="{ height: '95%' }">
       <div class="channel-container">
-        <van-cell title="我的频道">
+          <!-- border="false 单元格组件默认有边框 为true -->
+        <van-cell title="我的频道" :border="false">
           <van-button type="danger" size="mini">编辑</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name" />
+          <!-- 遍历我的频道 我的频道就是上面我们遍历的频道列表 -->
         </van-grid>
-        <van-cell title="推荐频道">
+        <!-- border="false 单元格组件默认有边框 为true -->
+        <van-cell title="推荐频道" :border="false">
         </van-cell>
         <van-grid :gutter="10">
           <van-grid-item v-for="value in 8" :key="value" text="文字" />
