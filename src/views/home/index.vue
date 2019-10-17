@@ -105,7 +105,8 @@
         <van-cell title="推荐频道" :border="false">
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+          <van-grid-item v-for="channel in recommendChannels" :key="channel.id" :text="channel.name" />
+          <!-- 遍历剩余推荐频道渲染到页面上 -->
         </van-grid>
       </div>
     </van-popup>
@@ -244,6 +245,31 @@ export default {
 
       this.allChannels = data.data.channels
     }
+  },
+  //   封装计算属性获取剩余推荐频道
+  computed: {
+    //   获取推荐频道列表
+    recommendChannels () {
+      // 定义一个空数组接收剩余我的频道
+      const arr = []
+      this.allChannels.forEach(channel => {
+        // 判断 channel 是否存在我的频道中
+      // 如果不存在，就证明它是剩余推荐的频道
+
+        // 数组的 find 方法
+        // 它会遍历数组，每遍历一次，它就判定 item.id === channel.id
+        // 如果 true，则停止遍历，返回满足该条件的元素
+        // 如果 false，则继续遍历
+        // 如果直到遍历结束都没有找到符合 item.id === channel.id 条件的元素，则返回 undefined
+        const res = this.channels.find(item => item.id === channel.id)
+        if (!res) {
+          arr.push(channel)
+        }
+      })
+      //   return 所有频道 - 我的频道
+      return arr
+    }
+
   }
 }
 </script>
