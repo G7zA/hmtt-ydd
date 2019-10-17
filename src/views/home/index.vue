@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import { defaultChannels } from '@/api/channel' // 调用封装好的默认推荐频道列表接口发请求
+import { defaultChannels, allChannels } from '@/api/channel' // 调用封装好的默认推荐频道列表接口发请求
 import { getArticelsList } from '@/api/articles' // 调用封装好的文章列表接口发请求
 export default {
   name: 'HomeIndex',
@@ -127,11 +127,13 @@ export default {
       channels: [], // 定义频道列表
       //   isloading: false
       //   isChannleShow: false // 是否弹出
-      isChannleShow: true // 是否弹出
+      isChannleShow: true, // 是否弹出
+      allChannels: [] // 存储素有频道列表
     }
   },
   created () {
-    this.getChannels()
+    this.getChannels() // 频道列表的方法调用
+    this.getAllChannels() // 所有频道的方法调用
   },
   methods: {
     //   接口真实数据 上拉加载更多
@@ -232,6 +234,15 @@ export default {
 
       // 4. 提示
       this.$toast('刷新成功')
+    },
+    /**
+     * 获取所有频道
+     */
+    async getAllChannels () {
+      const { data } = await allChannels()
+      //   console.log(data)
+
+      this.allChannels = data.data.channels
     }
   }
 }
