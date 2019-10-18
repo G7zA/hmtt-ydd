@@ -98,14 +98,14 @@
           <van-button type="danger" size="mini">编辑</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name" />
+          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name"/>
           <!-- 遍历我的频道 我的频道就是上面我们遍历的频道列表 -->
         </van-grid>
         <!-- border="false 单元格组件默认有边框 为true -->
         <van-cell title="推荐频道" :border="false">
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in recommendChannels" :key="channel.id" :text="channel.name" />
+          <van-grid-item v-for="channel in recommendChannels" :key="channel.id" :text="channel.name"  @click="addChannel(channel)"/>
           <!-- 遍历剩余推荐频道渲染到页面上 -->
         </van-grid>
       </div>
@@ -117,6 +117,7 @@
 <script>
 import { defaultChannels, allChannels } from '@/api/channel' // 调用封装好的默认推荐频道列表接口发请求
 import { getArticelsList } from '@/api/articles' // 调用封装好的文章列表接口发请求
+import { getItem, setItem } from '@/utils/storage' // 引入本地储存模块 做数据持久化
 export default {
   name: 'HomeIndex',
   data () {
@@ -130,6 +131,14 @@ export default {
       //   isChannleShow: false // 是否弹出
       isChannleShow: true, // 是否弹出
       allChannels: [] // 存储素有频道列表
+    }
+  },
+  // 监听频道数据 当数据发生改变，就把数据重新存储到本地存储
+  watch: {
+    // 函数名就是要监视的数据成员名称
+    channels (newVal) {
+    //   console.log(newVal)
+      setItem('channels', newVal)
     }
   },
   created () {
@@ -150,7 +159,7 @@ export default {
         timestamp: activeChannel.timestamp || Date.now(), // 请求新的时间戳
         with_top: 1 // 是否包含置顶，进入页面第一次请求时要包含置顶文章 1包含置顶 0不包含
       })
-      console.log(data)
+      //   console.log(data)
 
       // 2. 将数据添加到 当前频道的articles 中
       //   activeChannel.articles = activeChannel.articles.concat(data.data.results)
@@ -195,13 +204,29 @@ export default {
 
     // 获取默认推荐频道列表方法
     async getChannels () {
-      const { data } = await defaultChannels()
-      console.log(data)
+      // 因为我们把数据持久化到了本次存储，所以我们需要在页面初始化的时候优先从本地存储来获取频道数据
+      // 首先定义本地一个空数组
+      let channels = []
+      //   然后读取本地储存的频道
+      const loadChannels = getItem('channels')
+      // 做判断如果本地储存有数据就从本地储存拿
+      // 如果有本地存储的频道列表就使用本地存储的频道列表
+      if (loadChannels) {
+        channels = loadChannels
+        // 如果没有本地存储的频道列表，则请求获取后台推荐的频道列表
+      } else {
+        const { data } = await defaultChannels()
+        channels = data.data.channels
+      }
+      //   以前的写法 没有从本地储存中拿数据做数据持久化
+      // const { data } = await defaultChannels()
+      //   console.log(data)
 
-      //  1.展示文章列表 用模拟数据
+      //  1.展示文章列表
       // 1.1因为每个频道都有一份儿自己的文章列表数据，所以我们首先要将数据进行改造，为每个频道添加自定义数据：文章列表、loading状态、finished 结束状态
       // 1.1.1定制频道的内容数据（请求的接口中添加另外的数据）
-      const channels = data.data.channels // 定义后台数据 手动加入数据
+      // const channels = data.data.channels // 定义变量接收后台数据 手动加入数据
+      //  根据需要扩展自定义数据，用以满足我们的业务需求
       channels.forEach(channel => {
         channel.articles = [] // 存储频道的文章列表
         channel.loading = false // 频道的上拉加载更多的 loading 状态
@@ -215,7 +240,7 @@ export default {
     },
     // 下拉刷新
     async onRefresh () {
-      console.log('onRefresh') // 测试下拉
+      // console.log('onRefresh') // 测试下拉
 
       // 获取当期激活的频道对象
       const activeChannel = this.channels[this.active]
@@ -241,9 +266,13 @@ export default {
      */
     async getAllChannels () {
       const { data } = await allChannels()
-      //   console.log(data)
+      console.log(data)
 
       this.allChannels = data.data.channels
+    },
+    // 添加频道  注册点击事件 点击频道的时候调用方法将所点击的频道添加到我的频道中
+    addChannel (channel) {
+      this.channels.push(channel)
     }
   },
   //   封装计算属性获取剩余推荐频道
@@ -269,7 +298,6 @@ export default {
       //   return 所有频道 - 我的频道
       return arr
     }
-
   }
 }
 </script>
