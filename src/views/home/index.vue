@@ -95,10 +95,12 @@
       <div class="channel-container">
           <!-- border="false 单元格组件默认有边框 为true -->
         <van-cell title="我的频道" :border="false">
-          <van-button type="danger" size="mini">编辑</van-button>
+          <van-button type="danger" size="mini" @click="isEditShow=!isEditShow">{{ isEditShow ? '完成' : '编辑' }}</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name"/>
+          <van-grid-item v-for="(channel,index) in channels" :key="index" :text="channel.name" @click="onMyChannelClick(index)">
+              <van-icon v-show="isEditShow" class="close-icon" slot="icon" name="close" />
+          </van-grid-item>
           <!-- 遍历我的频道 我的频道就是上面我们遍历的频道列表 -->
         </van-grid>
         <!-- border="false 单元格组件默认有边框 为true -->
@@ -130,7 +132,8 @@ export default {
       //   isloading: false
       //   isChannleShow: false // 是否弹出
       isChannleShow: true, // 是否弹出
-      allChannels: [] // 存储素有频道列表
+      allChannels: [], // 存储素有频道列表
+      isEditShow: false // 删除按钮的显示与隐藏
     }
   },
   // 监听频道数据 当数据发生改变，就把数据重新存储到本地存储
@@ -273,6 +276,21 @@ export default {
     // 添加频道  注册点击事件 点击频道的时候调用方法将所点击的频道添加到我的频道中
     addChannel (channel) {
       this.channels.push(channel)
+    },
+    // 点击我的频道实现 切换频道和删除频道
+    onMyChannelClick (index) {
+      if (this.isEditShow) {
+        // 如果是编辑状态，删除频道
+        this.channels.splice(index, 1)
+      } else {
+        // 如果是非编辑状态，切换频道展示
+
+        // 切换当前激活的频道
+        this.active = index
+
+        // 关闭频道弹层
+        this.isChannleShow = false
+      }
     }
   },
   //   封装计算属性获取剩余推荐频道
@@ -327,5 +345,11 @@ export default {
   .channel-container {
     padding-top: 30px;
   }
+//   关闭按钮通过样式处理将其定位到频道项的右上角
+  .close-icon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
 }
 </style>
