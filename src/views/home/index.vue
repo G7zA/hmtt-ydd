@@ -6,6 +6,11 @@
     <!-- 频道列表 -->
     <!-- animated:切换动画 swipeable：滑动切换 -->
     <van-tabs v-model="active" animated swipeable>
+         <!-- 面包菜单按钮 -->
+      <div slot="nav-right" class="wap-nav" @click="isChannelShow = true">
+        <van-icon name="wap-nav" size="24" />
+      </div>
+      <!-- /面包菜单按钮 -->
       <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
         <van-pull-refresh v-model="channel.isPullDownLoading" @refresh="onRefresh">
           <!--v-model="channel.isPullDownLoading" 控制下拉刷新的 loading 状态
@@ -91,23 +96,37 @@
     <!-- closeable:属性关闭弹层 会在右上角显示一个关闭的图标 -->
     <!-- close-icon-position="top-left": 在左上角关闭弹层 -->
     <!-- 因为要填充内容把单标签设置成双标签 -->
-    <van-popup v-model="isChannleShow" round closeable position="bottom" :style="{ height: '95%' }">
+    <van-popup v-model="isChannelShow" round closeable position="bottom" :style="{ height: '95%' }">
       <div class="channel-container">
-          <!-- border="false 单元格组件默认有边框 为true -->
+        <!-- border="false 单元格组件默认有边框 为true -->
         <van-cell title="我的频道" :border="false">
-          <van-button type="danger" size="mini" @click="isEditShow=!isEditShow">{{ isEditShow ? '完成' : '编辑' }}</van-button>
+          <van-button
+            type="danger"
+            size="mini"
+            @click="isEditShow = !isEditShow"
+          >{{ isEditShow ? '完成' : '编辑' }}</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="(channel,index) in channels" :key="index" :text="channel.name" @click="onMyChannelClick(index)">
-              <van-icon v-show="isEditShow" class="close-icon" slot="icon" name="close" />
+          <van-grid-item text="推荐" @click="switchChannel(0)" />
+          <van-grid-item
+            v-for="(channel,index) in channels.slice(1)"
+            :key="index"
+            :text="channel.name"
+            @click="onMyChannelClick(index)"
+          >
+            <van-icon v-show="isEditShow" class="close-icon" slot="icon" name="close" />
           </van-grid-item>
           <!-- 遍历我的频道 我的频道就是上面我们遍历的频道列表 -->
         </van-grid>
         <!-- border="false 单元格组件默认有边框 为true -->
-        <van-cell title="推荐频道" :border="false">
-        </van-cell>
+        <van-cell title="推荐频道" :border="false"></van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in recommendChannels" :key="channel.id" :text="channel.name"  @click="addChannel(channel)"/>
+          <van-grid-item
+            v-for="channel in recommendChannels"
+            :key="channel.id"
+            :text="channel.name"
+            @click="addChannel(channel)"
+          />
           <!-- 遍历剩余推荐频道渲染到页面上 -->
         </van-grid>
       </div>
@@ -131,16 +150,16 @@ export default {
       channels: [], // 定义频道列表
       //   isloading: false
       //   isChannleShow: false // 是否弹出
-      isChannleShow: true, // 是否弹出
+      isChannelShow: false, // 是否弹出
       allChannels: [], // 存储素有频道列表
-      isEditShow: false // 删除按钮的显示与隐藏
+      isEditShow: false // 编辑按钮状态
     }
   },
   // 监听频道数据 当数据发生改变，就把数据重新存储到本地存储
   watch: {
     // 函数名就是要监视的数据成员名称
     channels (newVal) {
-    //   console.log(newVal)
+      //   console.log(newVal)
       setItem('channels', newVal)
     }
   },
@@ -229,14 +248,17 @@ export default {
       // 1.1因为每个频道都有一份儿自己的文章列表数据，所以我们首先要将数据进行改造，为每个频道添加自定义数据：文章列表、loading状态、finished 结束状态
       // 1.1.1定制频道的内容数据（请求的接口中添加另外的数据）
       // const channels = data.data.channels // 定义变量接收后台数据 手动加入数据
-      //  根据需要扩展自定义数据，用以满足我们的业务需求
-      channels.forEach(channel => {
-        channel.articles = [] // 存储频道的文章列表
-        channel.loading = false // 频道的上拉加载更多的 loading 状态
-        channel.finished = false // 频道的加载结束的状态
-        channel.timestamp = null // 存储获取频道下一页的时间戳
-        channel.isPullDownLoading = false // 存储频道的下拉刷新 loading 状态
-      })
+
+      // 根据需要扩展自定义数据，用以满足我们的业务需求
+      this.extendData(channels)
+
+      //   channels.forEach(channel => {
+      //     channel.articles = [] // 存储频道的文章列表
+      //     channel.loading = false // 频道的上拉加载更多的 loading 状态
+      //     channel.finished = false // 频道的加载结束的状态
+      //     channel.timestamp = null // 存储获取频道下一页的时间戳
+      //     channel.isPullDownLoading = false // 存储频道的下拉刷新 loading 状态
+      //   })
       this.channels = channels // 将服务器中的数据赋值给data中的channels中 然后做循环遍历渲染到页面上，此时频道列表channels数组中的每个频道channel中就会多了一个articles文章列表
       //   channel.articles 是频道列表 在他的外面是一个当前频道对象就是this.channels[this.active]=activeChannel(当前激活的频道对象)
       // }
@@ -269,28 +291,52 @@ export default {
      */
     async getAllChannels () {
       const { data } = await allChannels()
-      console.log(data)
-
-      this.allChannels = data.data.channels
+      const channels = data.data.channels
+      //   调用封装的定制频道数据的函数
+      this.extendData(channels)
+      //   channels.forEach(channel => {
+      //     channel.articles = [] // 存储频道的文章列表
+      //     channel.finished = false // 存储频道的加载结束状态
+      //     channel.loading = false // 存储频道的加载更多的 loading 状态
+      //     channel.timestamp = null // 存储获取频道下一页的时间戳
+      //     channel.isPullDownLoading = false // 存储频道的下拉刷新 loading 状态
+      //   })
+      this.allChannels = channels
     },
     // 添加频道  注册点击事件 点击频道的时候调用方法将所点击的频道添加到我的频道中
     addChannel (channel) {
       this.channels.push(channel)
     },
-    // 点击我的频道实现 切换频道和删除频道
+    // 我的频道项点击处理函数
     onMyChannelClick (index) {
       if (this.isEditShow) {
         // 如果是编辑状态，删除频道
         this.channels.splice(index, 1)
       } else {
         // 如果是非编辑状态，切换频道展示
-
         // 切换当前激活的频道
-        this.active = index
+        // this.active = index
 
         // 关闭频道弹层
-        this.isChannleShow = false
+        // this.isChannelShow = false
+        // 因为这个数组不包括“推荐”频道，而首页中遍历的频道列表是包括推荐，所以让索引+1
+        this.switchChannel(index + 1)
       }
+    },
+    // 切换频道
+    switchChannel (index) {
+      this.active = index
+      this.isChannelShow = false
+    },
+    // 封装定制的频道方法因为所有频道与获取推荐频道的时候都定制了频道
+    extendData (channels) {
+      channels.forEach(channel => {
+        channel.articles = [] // 存储频道的文章列表
+        channel.finished = false // 存储频道的加载结束状态
+        channel.loading = false // 存储频道的加载更多的 loading 状态
+        channel.timestamp = null // 存储获取频道下一页的时间戳
+        channel.isPullDownLoading = false // 存储频道的下拉刷新 loading 状态
+      })
     }
   },
   //   封装计算属性获取剩余推荐频道
@@ -301,7 +347,7 @@ export default {
       const arr = []
       this.allChannels.forEach(channel => {
         // 判断 channel 是否存在我的频道中
-      // 如果不存在，就证明它是剩余推荐的频道
+        // 如果不存在，就证明它是剩余推荐的频道
 
         // 数组的 find 方法
         // 它会遍历数组，每遍历一次，它就判定 item.id === channel.id
@@ -330,6 +376,16 @@ export default {
       margin-right: 10px;
     }
   }
+  /** 展示频道的菜单按钮 */
+  .wap-nav {
+    position: sticky;
+    right: 0;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    opacity: 0.8;
+  }
+/* 标签组件的根节点的类名 */
   .van-tabs /deep/ .van-tabs__wrap--scrollable {
     position: fixed;
     top: 46px;
@@ -345,11 +401,11 @@ export default {
   .channel-container {
     padding-top: 30px;
   }
-//   关闭按钮通过样式处理将其定位到频道项的右上角
+  //设置点击编辑之后的icon按钮图标固定在右上角
   .close-icon {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-}
+    position: absolute;
+    top: -5px;
+    right: -5px;
+  }
 }
 </style>
